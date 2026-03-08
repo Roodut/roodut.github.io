@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roodut — Four AI Platforms. One Desktop. Zero SaaS.</title>
+  <meta name="description" content="Run Claude, Codex, Cursor, and Gemini side by side on your machine. Let them disagree. Compare outputs. Catch conflicts before you ship. No SaaS. No lock-in.">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Roodut — Four AI Platforms. One Desktop. Zero SaaS.">
+  <meta property="og:description" content="Run Claude, Codex, Cursor, and Gemini side by side on your machine. Let them disagree. Compare outputs. Catch conflicts before you ship.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://roodut.com">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Roodut — Four AI Platforms. One Desktop. Zero SaaS.">
+  <meta name="twitter:description" content="Run Claude, Codex, Cursor, and Gemini side by side. Let them disagree. Catch conflicts before you ship. No SaaS.">
+  <meta name="twitter:site" content="@getroodut">
+  <!-- Canonical -->
+  <link rel="canonical" href="https://roodut.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0b;
+      --bg-elevated: #111113;
+      --bg-card: #16161a;
+      --border: #2a2a2e;
+      --text: #ededef;
+      --text-secondary: #8b8b8e;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --cyan: #06b6d4;
+      --pink: #ec4899;
+      --radius: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ---- NAV ---- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(10,10,11,0.8);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text);
+    }
+    .logo-icon {
+      width: 28px; height: 28px; background: var(--accent);
+      border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; padding: 5px;
+    }
+    .logo-icon span {
+      background: rgba(255,255,255,0.9); border-radius: 2px;
+    }
+    .logo-oo { color: var(--cyan); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none; font-size: 14px;
+      font-weight: 600; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-toggle {
+      display: none; background: none; border: none; color: var(--text);
+      font-size: 24px; cursor: pointer; padding: 4px 8px; line-height: 1;
+    }
+    .nav-cta {
+      background: var(--accent) !important; color: white !important;
+      padding: 8px 16px; border-radius: 8px; font-weight: 600 !important;
+      transition: opacity 0.2s !important;
+    }
+    .nav-cta:hover { opacity: 0.9; }
+
+    /* ---- HERO ---- */
+    .hero {
+      padding: 160px 24px 80px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 100px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .badge-dot {
+      width: 6px; height: 6px; background: var(--green);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800; letter-spacing: -2px;
+      line-height: 1.05; margin-bottom: 20px;
+      max-width: 800px; margin-left: auto; margin-right: auto;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 50%, var(--pink) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text-secondary);
+      max-width: 580px; margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    .hero-buttons {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    }
+    .btn {
+      padding: 14px 28px; border-radius: 10px; font-size: 15px;
+      font-weight: 600; text-decoration: none; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; border: none;
+    }
+    .btn-primary {
+      background: var(--accent); color: white;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 30px var(--accent-glow); }
+    .btn-secondary {
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--text-secondary); }
+
+    /* ---- ORIGIN STORY ---- */
+    .origin {
+      padding: 80px 24px 100px;
+      max-width: 680px; margin: 0 auto;
+      text-align: center;
+    }
+    .origin-word {
+      font-family: var(--mono); font-size: 14px;
+      color: var(--text-secondary); margin-bottom: 32px;
+      letter-spacing: 2px;
+    }
+    .origin-word .fi { color: var(--cyan); }
+    .origin-word .arrow { color: #6b6b6e; margin: 0 12px; }
+    .origin-word .en { color: var(--accent); }
+    .origin-body {
+      font-size: 17px; line-height: 1.9; color: var(--text-secondary);
+    }
+    .origin-body em {
+      color: var(--text); font-style: italic;
+    }
+    .origin-body strong {
+      color: var(--text); font-weight: 600;
+    }
+    .origin-divider {
+      width: 40px; height: 2px; background: var(--border);
+      margin: 32px auto;
+    }
+    .origin-tagline {
+      font-size: 20px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    /* ---- TERMINAL DEMO ---- */
+    .terminal-section {
+      max-width: 900px; margin: 0 auto; padding: 0 24px;
+    }
+    .terminal {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .terminal-bar-title {
+      flex: 1; text-align: center; font-size: 13px;
+      color: var(--text-secondary); font-family: var(--mono);
+    }
+    .terminal-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 300px;
+    }
+    .terminal-panel {
+      padding: 16px; font-family: var(--mono); font-size: 12px;
+      line-height: 1.8; border-right: 1px solid var(--border);
+    }
+    .terminal-panel:last-child { border-right: none; }
+    .terminal-panel-header {
+      font-weight: 600; margin-bottom: 8px; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .t-claude .terminal-panel-header { color: var(--orange); }
+    .t-codex .terminal-panel-header { color: var(--green); }
+    .t-cursor .terminal-panel-header { color: var(--cyan); }
+    .t-gemini .terminal-panel-header { color: var(--pink); }
+    .t-line { color: var(--text-secondary); }
+    .t-line .cmd { color: var(--green); }
+    .t-line .file { color: var(--cyan); }
+    .t-line .score { color: var(--orange); }
+    .t-line .pass { color: var(--green); }
+    .t-line .fail { color: #ef4444; }
+    .t-line .info { color: var(--accent); }
+
+    /* ---- STATS BAR ---- */
+    .stats {
+      padding: 60px 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-top: 80px;
+    }
+    .stats-inner {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 36px; font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label {
+      font-size: 13px; color: var(--text-secondary); margin-top: 4px;
+      font-weight: 600;
+    }
+    .stat-source {
+      font-size: 11px; color: #6b6b6e; margin-top: 2px;
+    }
+
+    /* ---- FEATURES ---- */
+    .features {
+      padding: 100px 24px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .section-label {
+      font-size: 13px; font-weight: 600; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+      text-align: center;
+    }
+    .section-title {
+      font-size: 36px; font-weight: 800; letter-spacing: -1px;
+      text-align: center; margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-secondary);
+      text-align: center; max-width: 600px; margin: 0 auto 60px;
+    }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 16px; font-weight: 800; margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .fi-1 { background: rgba(99,102,241,0.15); }
+    .fi-2 { background: rgba(34,197,94,0.15); }
+    .fi-3 { background: rgba(245,158,11,0.15); }
+    .fi-4 { background: rgba(6,182,212,0.15); }
+    .fi-5 { background: rgba(236,72,153,0.15); }
+    .fi-6 { background: rgba(168,85,247,0.15); }
+
+    /* ---- HOW IT WORKS ---- */
+    .how-it-works {
+      padding: 100px 24px;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .steps {
+      max-width: 800px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .step {
+      display: flex; gap: 24px; padding: 32px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 40px; height: 40px; min-width: 40px;
+      border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px;
+    }
+    .step h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .step p { font-size: 14px; color: var(--text-secondary); }
+    .step code {
+      font-family: var(--mono); font-size: 13px; color: var(--cyan);
+      background: var(--bg); padding: 2px 8px; border-radius: 4px;
+    }
+
+    /* ---- COMPARISON ---- */
+    .comparison {
+      padding: 100px 24px;
+      max-width: 900px; margin: 0 auto;
+    }
+    .comparison .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .comparison table {
+      width: 100%; border-collapse: collapse; min-width: 600px;
+    }
+    .comparison th, .comparison td {
+      padding: 14px 16px; text-align: left; font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison th {
+      color: var(--text-secondary); font-weight: 600; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .comparison td:first-child { font-weight: 600; }
+    .check { color: var(--green); font-size: 18px; }
+    .cross { color: #6b6b6e; font-size: 18px; }
+    .partial { color: var(--orange); font-size: 14px; }
+
+    /* ---- ROADMAP ---- */
+    .roadmap {
+      padding: 100px 24px;
+      max-width: 900px; margin: 0 auto;
+    }
+    .roadmap-grid {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .roadmap-item {
+      display: flex; align-items: flex-start; gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .roadmap-item:last-child { border-bottom: none; }
+    .roadmap-status {
+      min-width: 80px; padding: 4px 12px; border-radius: 100px;
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.5px; text-align: center; margin-top: 2px;
+    }
+    .status-done { background: rgba(34,197,94,0.15); color: var(--green); }
+    .status-live { background: rgba(6,182,212,0.15); color: var(--cyan); }
+    .status-next { background: rgba(245,158,11,0.15); color: var(--orange); }
+    .status-planned { background: rgba(139,139,142,0.15); color: var(--text-secondary); }
+    .roadmap-content { flex: 1; }
+    .roadmap-content h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .roadmap-content p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .roadmap-tag {
+      font-size: 11px; font-family: var(--mono); color: #6b6b6e;
+      margin-top: 6px;
+    }
+
+    /* ---- SOCIAL PROOF ---- */
+    .proof {
+      padding: 80px 24px;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .proof-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .proof-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .proof-card blockquote {
+      font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+      margin-bottom: 12px; font-style: italic;
+    }
+    .proof-card cite {
+      font-size: 12px; color: var(--accent); font-style: normal;
+      font-weight: 600;
+    }
+
+    /* ---- CTA ---- */
+    .cta {
+      padding: 120px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .cta::before {
+      content: '';
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta h2 {
+      font-size: 40px; font-weight: 800; letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+    .cta p {
+      font-size: 16px; color: var(--text-secondary); margin-bottom: 32px;
+    }
+
+    /* ---- WAITLIST FORM ---- */
+    .waitlist-form {
+      display: flex; gap: 8px; max-width: 440px;
+      margin: 0 auto; position: relative;
+    }
+    .waitlist-form input {
+      flex: 1; padding: 14px 18px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-card);
+      color: var(--text); font-size: 15px; font-family: var(--font);
+      outline: none; transition: border-color 0.2s;
+    }
+    .waitlist-form input:focus { border-color: var(--accent); }
+    .waitlist-form input::placeholder { color: #6b6b6e; }
+    .waitlist-form button {
+      padding: 14px 24px; border-radius: 10px; border: none;
+      background: var(--accent); color: white; font-weight: 800;
+      font-size: 15px; cursor: pointer; font-family: var(--font);
+      white-space: nowrap; transition: opacity 0.2s;
+    }
+    .waitlist-form button:hover { opacity: 0.9; }
+    .waitlist-note {
+      font-size: 12px; color: #6b6b6e; margin-top: 12px;
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      padding: 40px 24px; border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    footer p { font-size: 13px; color: #6b6b6e; }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer .footer-name { font-weight: 600; color: var(--text-secondary); }
+    footer .footer-meaning {
+      font-size: 11px; color: #6b6b6e; margin-top: 6px;
+      font-family: var(--mono); letter-spacing: 1px;
+    }
+
+    /* ---- FOCUS ---- */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* ---- SCROLL OFFSET ---- */
+    [id] { scroll-margin-top: 80px; }
+
+    /* ---- REDUCED MOTION ---- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 768px) {
+      .terminal-grid { grid-template-columns: 1fr; }
+      .terminal-panel { border-right: none; border-bottom: 1px solid var(--border); }
+      .terminal-panel:last-child { border-bottom: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .proof-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-toggle { display: block; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: rgba(10,10,11,0.95); backdrop-filter: blur(16px); padding: 16px 24px; gap: 16px; border-bottom: 1px solid var(--border); }
+      .step { flex-direction: column; gap: 12px; }
+      .waitlist-form { flex-direction: column; }
+      .origin-word { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon"><span></span><span></span><span></span><span></span></div>
+      R<span class="logo-oo">oo</span>dut
+    </a>
+    <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="#story" onclick="this.parentElement.classList.remove('open')">Story</a>
+      <a href="#features" onclick="this.parentElement.classList.remove('open')">Features</a>
+      <a href="#how-it-works" onclick="this.parentElement.classList.remove('open')">How it works</a>
+      <a href="#comparison" onclick="this.parentElement.classList.remove('open')">Compare</a>
+      <a href="#roadmap" onclick="this.parentElement.classList.remove('open')">Roadmap</a>
+      <a href="#cta" class="nav-cta" onclick="this.parentElement.classList.remove('open')">Get early access</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Four AI platforms. One orchestrator.
+  </div>
+  <h1>Let them <span class="gradient">disagree.</span></h1>
+  <p class="hero-sub">
+    Run Claude, Codex, Cursor, and Gemini side by side on your machine. Compare outputs. Catch conflicts before you ship.<br><br>
+    No SaaS. No lock-in. Your machine. Your agents.
+  </p>
+  <div class="hero-buttons">
+    <a href="#cta" class="btn btn-primary">
+      Join the waitlist
+    </a>
+    <a href="#how-it-works" class="btn btn-secondary">See how it works</a>
+  </div>
+</section>
+
+<!-- ORIGIN STORY -->
+<section class="origin" id="story">
+  <div class="origin-word">
+    <span class="fi">ruudut</span>
+    <span class="arrow">&rarr;</span>
+    <span class="en">roodut</span>
+  </div>
+  <p class="origin-body">
+    Multiple AI platforms running side by side, each in its own pane. We looked for a word that already described it. Finnish had one: <strong>ruudut</strong> &mdash; panes, panels, squares. The building blocks of a grid.
+  </p>
+  <br>
+  <p class="origin-body">
+    We kept the sound, simplified the spelling, and got <strong>Roodut</strong> &mdash; six letters that fit in a terminal, a repo name, and a product that didn't exist yet.
+  </p>
+  <div class="origin-divider"></div>
+  <p class="origin-tagline">Trust nothing automatically. Earn autonomy.</p>
+</section>
+
+<!-- TERMINAL DEMO -->
+<section class="terminal-section">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot" style="background:#ff5f57"></div>
+      <div class="terminal-dot" style="background:#febc2e"></div>
+      <div class="terminal-dot" style="background:#28c840"></div>
+      <span class="terminal-bar-title">roodut &mdash; workflow: Build + Validate</span>
+    </div>
+    <div class="terminal-grid">
+      <div class="terminal-panel t-claude">
+        <div class="terminal-panel-header">Claude &mdash; Builder</div>
+        <div class="t-line"><span class="cmd">$</span> Implementing auth middleware...</div>
+        <div class="t-line"><span class="file">+ src/auth.ts</span> (47 lines)</div>
+        <div class="t-line"><span class="file">+ src/middleware.ts</span> (23 lines)</div>
+        <div class="t-line"><span class="file">~ src/routes.ts</span> (modified)</div>
+        <div class="t-line"><span class="pass">&#10003;</span> Build complete, 0 errors</div>
+        <div class="t-line"><span class="info">ENIGMA</span> score: <span class="score">87/100</span></div>
+        <div class="t-line"><span class="info">HANDOFF</span> &rarr; Codex for validation</div>
+      </div>
+      <div class="terminal-panel t-codex">
+        <div class="terminal-panel-header">Codex &mdash; Validator</div>
+        <div class="t-line"><span class="cmd">$</span> Validating Claude's output...</div>
+        <div class="t-line"><span class="info">REVIEW</span> Checking correctness...</div>
+        <div class="t-line"><span class="pass">&#10003;</span> Auth flow handles edge cases</div>
+        <div class="t-line"><span class="pass">&#10003;</span> Middleware chains correctly</div>
+        <div class="t-line"><span class="fail">&#10007;</span> Missing rate limiting</div>
+        <div class="t-line"><span class="score">GATE</span> 72/100 &lt; 80 threshold</div>
+        <div class="t-line"><span class="info">RETRY</span> &rarr; Claude: add rate limiting</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-inner">
+    <div>
+      <div class="stat-value">4</div>
+      <div class="stat-label">AI platforms orchestrated</div>
+      <div class="stat-source">Claude, Codex, Cursor, Gemini</div>
+    </div>
+    <div>
+      <div class="stat-value">959+</div>
+      <div class="stat-label">Tests passing</div>
+      <div class="stat-source">Production-grade reliability</div>
+    </div>
+    <div>
+      <div class="stat-value">1st</div>
+      <div class="stat-label">Desktop-native orchestrator</div>
+      <div class="stat-source">Category-defining product</div>
+    </div>
+    <div>
+      <div class="stat-value">91%</div>
+      <div class="stat-label">Cross-platform accuracy</div>
+      <div class="stat-source">Beats GPT-4 solo &mdash; MIT/ICML</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Everything your AIs need to ship autonomously</h2>
+  <p class="section-sub">Not another chatbot wrapper. Roodut is a full orchestration engine with validation, trust, routing, and overnight execution built in.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon fi-1">&#9878;</div>
+      <h3>Cross-Platform Validation</h3>
+      <p>One AI builds, another validates. Quality gates enforce minimum scores. Failed validation auto-retries the builder &mdash; not the reviewer. Three weaker models outperform GPT-4 when they check each other.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-2">&#9877;</div>
+      <h3>Trust-Calibrated Autonomy</h3>
+      <p>Agents earn freedom through track record. Start supervised, auto-promote to full autonomy as they prove reliable. Per-task-type permissions &mdash; full auto for tests, supervised for production code.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-3">&#9790;</div>
+      <h3>Overnight Execution</h3>
+      <p>Episodic pipeline with bounded episodes, structured handoffs, and git-verified progress. Wake up to completed work, not context cliff disasters. All six death spirals mitigated.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-4">&#9881;</div>
+      <h3>ENIGMA Routing</h3>
+      <p>Empirical capability matrix scores each agent across task types. Auto-routes tasks to the best-suited agent. Reroute suggestions when quality drops. Stop wasting 80% of AI spend on wrong-model routing.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-5">&#9673;</div>
+      <h3>Real-Time Observability</h3>
+      <p>Watch agents type in real-time &mdash; not trace logs after the fact. SSE streaming, live cost tracking, budget caps with auto-halt, and a morning summary digest when you arrive.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-6">&#9635;</div>
+      <h3>Hallucination Detection</h3>
+      <p>Compares what the agent claims it did against the actual git diff. Catches phantom changes, missed files, and fabricated completions before they reach your codebase.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how-it-works">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">Install to overnight PRs in minutes</h2>
+  <p class="section-sub">No Python. No graph theory. No YAML configs. Just open Roodut and go.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Install</h3>
+        <p>One download. No account, no cloud. It runs entirely on your machine. Your code and prompts never leave your environment.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Add your AI platforms</h3>
+        <p>Connect Claude, Codex, Cursor, and Gemini in one place. Each runs natively with its own CLI and credentials &mdash; Roodut orchestrates them in parallel terminal panes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Run workflows</h3>
+        <p>Choose from 19+ templates or build your own. Define multi-step workflows &mdash; Codex codes, Cursor reviews, Claude summarizes. Set quality gates, budget caps, and oversight level. One run, multiple platforms, one result.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h3>Calibrate trust</h3>
+        <p>Set autonomy levels per platform. Use the escalation queue for anything that needs a human. Approve from your phone. Ship faster without losing control.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="comparison" id="comparison">
+  <div class="section-label">Why Roodut</div>
+  <h2 class="section-title">What others don't have</h2>
+  <p class="section-sub">Every competitor is cloud-only, single-platform, or requires a PhD in graph theory.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Roodut</th>
+        <th>CrewAI</th>
+        <th>LangGraph</th>
+        <th>Cloud Agents</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Desktop-native (local-first)</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
+        <td>Multi-model orchestration</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="partial">Partial</span></td>
+        <td><span class="partial">Partial</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
+        <td>Cross-platform validation</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="partial">Manual</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
+        <td>Trust-calibrated autonomy</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
+        <td>Real-time agent observation</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="partial">LangSmith</span></td>
+        <td><span class="partial">After run</span></td>
+      </tr>
+      <tr>
+        <td>Hallucination detection</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
+        <td>No vendor lock-in</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="partial">LangChain</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
+        <td>Zero boilerplate setup</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="check">&#10003;</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="roadmap" id="roadmap">
+  <div class="section-label">Roadmap</div>
+  <h2 class="section-title">Built in public. Shipping fast.</h2>
+  <p class="section-sub">6 of 7 core features are done and tested. Here's what's live, what's next, and what's coming.</p>
+
+  <div class="roadmap-grid">
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>Episodic Pipeline Runner</h3>
+        <p>Bounded 30-60 min execution episodes with structured handoffs. Fresh context per episode, git-verified progress between them. Wake up to completed work.</p>
+        <div class="roadmap-tag">14 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>Cross-Platform Validation</h3>
+        <p>One AI builds, another validates. Quality gates, hallucination detection (git diff vs agent claims), auto-retry of the builder on failure. Validation step type with auto-generated review prompts.</p>
+        <div class="roadmap-tag">34 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>Trust-Calibrated Autonomy</h3>
+        <p>Progressive permission model. Start supervised, auto-promote to full autonomy based on track record. Per-task-type permissions &mdash; full auto for tests, supervised for production code.</p>
+        <div class="roadmap-tag">34 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>Memory &amp; Context Persistence</h3>
+        <p>Agents remember project history, past decisions, and what they already tried &mdash; across sessions, episodes, and restarts. Auto-injected into prompts.</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>Audit Trail &amp; Morning Summary</h3>
+        <p>Structured log of every decision, git diff per step, hallucination entries. Auto-generated morning digest with trust scores, approvals, and patterns learned.</p>
+        <div class="roadmap-tag">15 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>ENIGMA Routing Engine</h3>
+        <p>Empirical capability matrix scores each AI platform across task types. Auto-routes to the best-suited platform. Reroute suggestions when quality drops. Frame auto-generation from successful runs.</p>
+        <div class="roadmap-tag">30 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-live">Live</span>
+      <div class="roadmap-content">
+        <h3>Remote Dispatch &amp; Dashboard</h3>
+        <p>HTTP API, SSE real-time streaming, per-run cost tracking, budget caps with auto-halt, mobile approval page. Approve from your phone on LAN.</p>
+        <div class="roadmap-tag">66 tests passing &middot; Full web dashboard coming</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-next">Next</span>
+      <div class="roadmap-content">
+        <h3>Sandbox Execution</h3>
+        <p>Isolated git worktree per workflow step. Agent changes only merge after validation passes. Rollback on failure. 78% of enterprise AI projects require sandbox.</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-planned">Planned</span>
+      <div class="roadmap-content">
+        <h3>MCP &amp; A2A Protocol Support</h3>
+        <p>Interop with Model Context Protocol (97M+ downloads) and Agent2Agent (50+ enterprise partners). Expose Roodut workflows as MCP tools. Local-first with mandatory auth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="proof">
+  <div class="section-label">The research is clear</div>
+  <h2 class="section-title" style="margin-bottom:48px">Backed by data, not hype</h2>
+
+  <div class="proof-grid">
+    <div class="proof-card">
+      <blockquote>"Multiple LLM instances debating across rounds significantly improves factuality. Three medium-capacity models outperformed GPT-4 at 91% accuracy."</blockquote>
+      <cite>MIT / ICML 2024 &mdash; Multi-Agent Debate Study</cite>
+    </div>
+    <div class="proof-card">
+      <blockquote>"Reflection is one of the most underused but powerful agentic design patterns. Create two agents &mdash; one to generate, one to critique."</blockquote>
+      <cite>Andrew Ng &mdash; Agentic AI Design Patterns</cite>
+    </div>
+    <div class="proof-card">
+      <blockquote>"The orchestration layer is the bottleneck. Better orchestration could increase the autonomous AI agent market by 15-30%, reaching $45B by 2030."</blockquote>
+      <cite>Deloitte &mdash; TMT Predictions 2026</cite>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <h2>Put your AIs in formation.</h2>
+  <p>Private by default. Local by design. Runs fully on your machine.</p>
+  <p style="color: var(--text-secondary); font-size: 16px; margin-bottom: 32px;">Be first to know when we ship.</p>
+  <form class="waitlist-form" action="https://api.web3forms.com/submit" method="POST" id="waitlist-form">
+    <input type="hidden" name="access_key" value="78916a84-8993-422f-842e-8e318e9307a7">
+    <input type="hidden" name="subject" value="New Roodut waitlist signup">
+    <input type="hidden" name="from_name" value="Roodut Waitlist">
+    <input type="hidden" name="redirect" value="">
+    <input type="email" name="email" placeholder="you@company.com" id="email-input" required aria-label="Email address">
+    <button type="submit">Get early access</button>
+  </form>
+  <div id="form-status" aria-live="polite" class="waitlist-note"></div>
+  <p class="waitlist-note">No spam. We'll email you when it ships.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    <span class="footer-name">R<span style="color: var(--cyan)">oo</span>dut</span> &nbsp;&middot;&nbsp;
+    <a href="https://github.com/roodut" target="_blank" rel="noopener">GitHub</a> &nbsp;&middot;&nbsp;
+    <a href="https://twitter.com/getroodut" target="_blank" rel="noopener">Twitter</a>
+  </p>
+  <p class="footer-meaning">from Finnish "ruudut" &mdash; panes, panels, squares</p>
+  <p style="margin-top: 8px">&copy; 2026 Roodut</p>
+</footer>
+
+<script>
+document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var form = this;
+  var input = document.getElementById('email-input');
+  var btn = form.querySelector('button');
+  var email = input.value.trim();
+  var status = document.getElementById('form-status');
+  if (!email || !email.includes('@')) { input.style.borderColor = '#ef4444'; status.textContent = 'Please enter a valid email.'; return; }
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  status.textContent = '';
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_key: form.querySelector('[name="access_key"]').value,
+      subject: 'New Roodut waitlist signup',
+      from_name: 'Roodut Waitlist',
+      email: email
+    })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.success) {
+      btn.textContent = "You're on the list!";
+      btn.style.background = '#22c55e';
+      input.value = '';
+      input.style.borderColor = '#22c55e';
+      status.textContent = "You're on the waitlist! We'll be in touch.";
+    } else {
+      btn.textContent = 'Try again';
+      btn.style.background = '#ef4444';
+      btn.disabled = false;
+      status.textContent = 'Something went wrong. Please try again.';
+    }
+  }).catch(function() {
+    btn.textContent = 'Try again';
+    btn.style.background = '#ef4444';
+    btn.disabled = false;
+    status.textContent = 'Network error. Please try again.';
+  });
+});
+</script>
+
+</body>
+</html>
