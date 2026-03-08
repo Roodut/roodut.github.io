@@ -281,7 +281,7 @@
       text-align: center; max-width: 600px; margin: 0 auto 60px;
     }
     .features-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
     }
     .feature-card {
       background: var(--bg-card); border: 1px solid var(--border);
@@ -491,7 +491,7 @@
       .terminal-grid { grid-template-columns: 1fr; }
       .terminal-panel { border-right: none; border-bottom: 1px solid var(--border); }
       .terminal-panel:last-child { border-bottom: none; }
-      .features-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
       .stats-inner { grid-template-columns: repeat(2, 1fr); }
       .proof-grid { grid-template-columns: 1fr; }
       .nav-links { display: none; }
@@ -500,6 +500,9 @@
       .step { flex-direction: column; gap: 12px; }
       .waitlist-form { flex-direction: column; }
       .origin-word { font-size: 12px; }
+    }
+    @media (max-width: 520px) {
+      .features-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -604,9 +607,9 @@
       <div class="stat-source">Claude, Codex, Cursor, Gemini</div>
     </div>
     <div>
-      <div class="stat-value">959+</div>
+      <div class="stat-value">1,046+</div>
       <div class="stat-label">Tests passing</div>
-      <div class="stat-source">Production-grade reliability</div>
+      <div class="stat-source">42 suites across 13 test areas</div>
     </div>
     <div>
       <div class="stat-value">1st</div>
@@ -625,7 +628,7 @@
 <section class="features" id="features">
   <div class="section-label">Features</div>
   <h2 class="section-title">Everything your AIs need to ship autonomously</h2>
-  <p class="section-sub">Not another chatbot wrapper. Roodut is a full orchestration engine with validation, trust, routing, and overnight execution built in.</p>
+  <p class="section-sub">Not another chatbot wrapper. Roodut is a full orchestration engine with validation, trust, routing, sandbox isolation, MCP tools, and overnight execution built in.</p>
 
   <div class="features-grid">
     <div class="feature-card">
@@ -658,6 +661,16 @@
       <h3>Hallucination Detection</h3>
       <p>Compares what the agent claims it did against the actual git diff. Catches phantom changes, missed files, and fabricated completions before they reach your codebase.</p>
     </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-4">&#9881;</div>
+      <h3>MCP Tool Library</h3>
+      <p>Browse 10 pre-configured MCP servers &mdash; GitHub, Brave Search, Slack, Puppeteer, PostgreSQL, and more. Enter your API key, click Connect. Every tool is instantly available to every workflow step.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-2">&#9878;</div>
+      <h3>Sandbox Execution</h3>
+      <p>Every workflow step runs in an isolated git worktree. Agent changes only merge after validation passes. One-click rollback on failure. Your main branch stays clean until you approve.</p>
+    </div>
   </div>
 </section>
 
@@ -686,11 +699,18 @@
       <div class="step-num">3</div>
       <div>
         <h3>Run workflows</h3>
-        <p>Choose from 19+ templates or build your own. Define multi-step workflows &mdash; Codex codes, Cursor reviews, Claude summarizes. Set quality gates, budget caps, and oversight level. One run, multiple platforms, one result.</p>
+        <p>Choose from 20+ templates or build your own. Define multi-step workflows &mdash; Codex codes, Cursor reviews, Claude summarizes. Set quality gates, budget caps, and oversight level. Or just type a task and let Roodut route it.</p>
       </div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
+      <div>
+        <h3>Connect tools</h3>
+        <p>Open the MCP Library, pick from 10 built-in servers &mdash; GitHub, Brave Search, Slack, databases. Enter your API key, hit Connect. Every tool is available to every workflow step automatically.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
       <div>
         <h3>Calibrate trust</h3>
         <p>Set autonomy levels per platform. Use the escalation queue for anything that needs a human. Approve from your phone. Ship faster without losing control.</p>
@@ -767,6 +787,20 @@
         <td><span class="cross">&#10007;</span></td>
       </tr>
       <tr>
+        <td>MCP tool ecosystem</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="partial">Partial</span></td>
+      </tr>
+      <tr>
+        <td>Sandbox isolation</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+        <td><span class="cross">&#10007;</span></td>
+      </tr>
+      <tr>
         <td>Zero boilerplate setup</td>
         <td><span class="check">&#10003;</span></td>
         <td><span class="cross">&#10007;</span></td>
@@ -782,7 +816,7 @@
 <section class="roadmap" id="roadmap">
   <div class="section-label">Roadmap</div>
   <h2 class="section-title">Built in public. Shipping fast.</h2>
-  <p class="section-sub">6 of 7 core features are done and tested. Here's what's live, what's next, and what's coming.</p>
+  <p class="section-sub">10 of 10 pipeline features are done and tested. Here's what shipped and what's next.</p>
 
   <div class="roadmap-grid">
     <div class="roadmap-item">
@@ -833,25 +867,49 @@
       </div>
     </div>
     <div class="roadmap-item">
-      <span class="roadmap-status status-live">Live</span>
+      <span class="roadmap-status status-done">Done</span>
       <div class="roadmap-content">
         <h3>Remote Dispatch &amp; Dashboard</h3>
         <p>HTTP API, SSE real-time streaming, per-run cost tracking, budget caps with auto-halt, mobile approval page. Approve from your phone on LAN.</p>
-        <div class="roadmap-tag">66 tests passing &middot; Full web dashboard coming</div>
+        <div class="roadmap-tag">66 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>Sandbox Execution</h3>
+        <p>Isolated git worktree per workflow step. Agent changes only merge after validation passes. One-click rollback on failure. Diff preview before merge.</p>
+        <div class="roadmap-tag">Git worktree isolation &middot; create, diff, merge, discard</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>MCP Server Mode</h3>
+        <p>Expose all Roodut workflows as MCP tools. Any MCP client &mdash; Claude Desktop, Cline, VS Code &mdash; can discover and run your workflows via JSON-RPC.</p>
+        <div class="roadmap-tag">16 tests passing</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-status status-done">Done</span>
+      <div class="roadmap-content">
+        <h3>MCP Client &amp; Tool Library</h3>
+        <p>Connect to external MCP servers with one click. 10 pre-configured integrations &mdash; GitHub, Brave Search, Slack, Puppeteer, PostgreSQL, and more. Every tool available to every workflow step.</p>
+        <div class="roadmap-tag">21 tests passing &middot; 10-server built-in catalog</div>
       </div>
     </div>
     <div class="roadmap-item">
       <span class="roadmap-status status-next">Next</span>
       <div class="roadmap-content">
-        <h3>Sandbox Execution</h3>
-        <p>Isolated git worktree per workflow step. Agent changes only merge after validation passes. Rollback on failure. 78% of enterprise AI projects require sandbox.</p>
+        <h3>Visual Workflow Builder</h3>
+        <p>Drag-and-drop workflow editor. Connect steps visually, set quality gates and routing rules without writing JSON. Live preview of ENIGMA routing decisions.</p>
       </div>
     </div>
     <div class="roadmap-item">
       <span class="roadmap-status status-planned">Planned</span>
       <div class="roadmap-content">
-        <h3>MCP &amp; A2A Protocol Support</h3>
-        <p>Interop with Model Context Protocol (97M+ downloads) and Agent2Agent (50+ enterprise partners). Expose Roodut workflows as MCP tools. Local-first with mandatory auth.</p>
+        <h3>Team Sharing &amp; Workflow Marketplace</h3>
+        <p>Share workflow templates across your team. Publish and discover community workflows. Import with one click, customize per project.</p>
       </div>
     </div>
   </div>
