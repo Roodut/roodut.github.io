@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roodut — Run Your Prompt Through 4 AI Models. See Where They Disagree.</title>
+  <meta name="description" content="Run your prompt through Claude, Codex, Cursor, and Gemini. See where they disagree. Catch hallucinations, conflicts, and blind spots before they reach your code.">
+  <meta property="og:title" content="Roodut — Same Prompt. Four AI Models. Different Answers.">
+  <meta property="og:description" content="Run your prompt through Claude, Codex, Cursor, and Gemini. See where they disagree. Catch hallucinations and blind spots before they reach your code.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://roodut.com">
+  <meta property="og:image" content="https://roodut.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Roodut — Same Prompt. Four AI Models. Different Answers.">
+  <meta name="twitter:description" content="Run your prompt through 4 AI models. See where they disagree.">
+  <meta name="twitter:site" content="@getroodut">
+  <meta name="twitter:image" content="https://roodut.com/og-image.png">
+  <link rel="canonical" href="https://roodut.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0b;
+      --bg-elevated: #111113;
+      --bg-card: #16161a;
+      --border: #2a2a2e;
+      --border-hover: #3a3a3e;
+      --text: #ededef;
+      --text-secondary: #8b8b8e;
+      --text-dim: #6b6b6e;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --accent-glow-strong: rgba(99, 102, 241, 0.25);
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --cyan: #06b6d4;
+      --pink: #ec4899;
+      --red: #ef4444;
+      --claude: #d4a574;
+      --codex: #22c55e;
+      --cursor: #6366f1;
+      --gemini: #06b6d4;
+      --radius: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ---- SR-ONLY ---- */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* ---- SKIP LINK ---- */
+    .skip-link {
+      position: absolute; top: -100px; left: 16px; z-index: 200;
+      background: var(--accent); color: white; padding: 8px 16px;
+      border-radius: 8px; font-weight: 700; font-size: 14px;
+      text-decoration: none; transition: top 0.2s;
+    }
+    .skip-link:focus { top: 8px; }
+
+    /* ---- NAV ---- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(10,10,11,0.85);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo {
+      font-weight: 800; font-size: 19px; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text);
+    }
+    .logo-icon {
+      width: 26px; height: 26px; background: var(--accent);
+      border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; padding: 5px;
+    }
+    .logo-icon span { background: rgba(255,255,255,0.9); border-radius: 2px; }
+    .logo-oo { color: var(--cyan); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none; font-size: 14px;
+      font-weight: 600; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent) !important; color: white !important;
+      padding: 8px 16px; border-radius: 8px; font-weight: 700 !important;
+      transition: opacity 0.2s !important; font-size: 13px !important;
+    }
+    .nav-cta:hover { opacity: 0.9; }
+    .nav-toggle {
+      display: none; background: none; border: none; color: var(--text);
+      font-size: 24px; cursor: pointer; padding: 4px 8px; line-height: 1;
+    }
+
+    /* ---- HERO ---- */
+    .hero {
+      padding: 140px 24px 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 100px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .badge-dot {
+      width: 6px; height: 6px; background: var(--green);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 800; letter-spacing: -2px;
+      line-height: 1.08; margin-bottom: 20px;
+      max-width: 780px; margin-left: auto; margin-right: auto;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 50%, var(--pink) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-defn {
+      font-size: 16px; color: var(--text-secondary);
+      max-width: 600px; margin: 0 auto 8px;
+      line-height: 1.7; font-family: var(--mono); font-weight: 400;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text-secondary);
+      max-width: 560px; margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+    .hero-buttons {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .btn {
+      padding: 14px 28px; border-radius: 10px; font-size: 15px;
+      font-weight: 700; text-decoration: none; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; border: none; font-family: var(--font);
+    }
+    .btn-primary {
+      background: var(--accent); color: white;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 30px var(--accent-glow-strong); }
+    .btn-secondary {
+      background: var(--bg-card); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--border-hover); }
+    .hero-tagline {
+      font-size: 14px; color: var(--text-dim);
+      font-family: var(--mono); letter-spacing: 0.5px;
+    }
+
+    /* ---- SECTION SHARED ---- */
+    .section-label {
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+      text-align: center;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 36px); font-weight: 800; letter-spacing: -1px;
+      text-align: center; margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-secondary);
+      text-align: center; max-width: 580px; margin: 0 auto 56px;
+      line-height: 1.7;
+    }
+
+    /* ---- LIVE DEMO SECTION ---- */
+    .demo-section {
+      padding: 80px 24px 100px;
+      max-width: 960px; margin: 0 auto;
+    }
+    .task-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      margin-bottom: 40px;
+    }
+    .task-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; cursor: pointer;
+      transition: all 0.2s; text-align: left;
+    }
+    .task-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .task-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .task-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .task-card-num {
+      font-size: 11px; font-weight: 800; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+    }
+    .task-card h3 { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+    .task-card p { font-size: 12px; color: var(--text-secondary); }
+
+    /* Demo area */
+    .demo-area { display: none; }
+    .demo-area.visible { display: block; }
+    .prompt-box {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 18px;
+      font-family: var(--mono); font-size: 13px; color: var(--cyan);
+      margin-bottom: 10px;
+    }
+    .prompt-label {
+      font-size: 11px; font-weight: 800; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+      font-family: var(--font);
+    }
+    .routing-bar {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 14px;
+      font-size: 12px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .enigma-badge {
+      background: rgba(99,102,241,0.15); color: var(--accent);
+      padding: 3px 10px; border-radius: 100px; font-weight: 800;
+      font-size: 11px; letter-spacing: 0.5px;
+    }
+    .routing-dot {
+      width: 6px; height: 6px; background: var(--green);
+      border-radius: 50%; animation: pulse 1.5s infinite;
+    }
+    .skip-btn {
+      margin-left: auto; background: none; border: 1px solid var(--border);
+      color: var(--text-secondary); font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 6px; cursor: pointer;
+      font-family: var(--font); transition: all 0.2s;
+    }
+    .skip-btn:hover { border-color: var(--text-secondary); color: var(--text); }
+    .skip-btn.hidden { display: none; }
+
+    /* Terminal panels */
+    .terminal-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .panel {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      min-height: 180px;
+    }
+    .panel-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .panel-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .panel-name {
+      font-size: 12px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .panel-status {
+      margin-left: auto; font-size: 11px; font-family: var(--mono);
+      color: var(--text-secondary);
+    }
+    .panel-body {
+      padding: 14px; font-family: var(--mono); font-size: 12px;
+      line-height: 1.8; color: var(--text-secondary); min-height: 120px;
+      word-wrap: break-word; overflow-wrap: break-word;
+    }
+    .panel-body .typed-text { color: var(--text); }
+    .panel-claude .panel-dot { background: var(--claude); }
+    .panel-claude .panel-name { color: var(--claude); }
+    .panel-codex .panel-dot { background: var(--codex); }
+    .panel-codex .panel-name { color: var(--codex); }
+    .panel-cursor .panel-dot { background: var(--cursor); }
+    .panel-cursor .panel-name { color: var(--cursor); }
+    .panel-gemini .panel-dot { background: var(--gemini); }
+    .panel-gemini .panel-name { color: var(--gemini); }
+    .cursor-blink {
+      display: inline-block; width: 7px; height: 14px;
+      background: var(--text); animation: blink 0.8s step-end infinite;
+      vertical-align: middle; margin-left: 1px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Report */
+    .report {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      opacity: 0; transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .report.visible { opacity: 1; transform: translateY(0); }
+    .report-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-elevated);
+    }
+    .report-badge {
+      background: rgba(239,68,68,0.15); color: var(--red);
+      padding: 4px 12px; border-radius: 100px; font-size: 11px;
+      font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .report-title { font-size: 14px; font-weight: 800; letter-spacing: -0.3px; }
+    .report-body { padding: 18px; }
+    .report-section { margin-bottom: 14px; }
+    .report-section:last-child { margin-bottom: 0; }
+    .report-section-title {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-green { background: var(--green); }
+    .dot-amber { background: var(--orange); }
+    .dot-red { background: var(--red); }
+    .dot-cyan { background: var(--cyan); }
+    .report-item {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+      padding: 5px 0 5px 14px; border-left: 2px solid var(--border);
+      margin-bottom: 3px;
+    }
+    .report-item.consensus { border-left-color: var(--green); }
+    .report-item.conflict { border-left-color: var(--orange); }
+    .report-item.conflict-red { border-left-color: var(--red); }
+    .report-item.unique { border-left-color: var(--cyan); }
+    .report-summary {
+      margin-top: 16px; padding: 14px; background: var(--bg-elevated);
+      border-radius: 8px; border: 1px solid var(--border);
+    }
+    .report-summary-label {
+      font-size: 11px; font-weight: 800; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+    }
+    .report-summary p { font-size: 14px; color: var(--text); line-height: 1.7; font-weight: 600; }
+    .report-confidence {
+      margin-top: 10px; padding: 10px 14px;
+      background: rgba(99,102,241,0.08); border-radius: 8px;
+      border: 1px solid rgba(99,102,241,0.2);
+      font-size: 13px; color: var(--text-secondary);
+    }
+    .report-confidence strong { color: var(--accent); }
+
+    /* Inline CTA after demo */
+    .demo-cta {
+      margin-top: 40px; text-align: center;
+      padding: 32px; background: var(--bg-elevated);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .demo-cta p {
+      font-size: 15px; color: var(--text-secondary); margin-bottom: 16px;
+    }
+    .demo-cta p strong { color: var(--text); }
+
+    /* ---- FEATURES ---- */
+    .features {
+      padding: 100px 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 14px;
+    }
+    .feature-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+    .feature-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .fi-1 { background: rgba(99,102,241,0.15); }
+    .fi-2 { background: rgba(34,197,94,0.15); }
+    .fi-3 { background: rgba(245,158,11,0.15); }
+    .fi-4 { background: rgba(6,182,212,0.15); }
+
+    /* ---- HOW WE'RE DIFFERENT ---- */
+    .different {
+      padding: 80px 24px;
+      max-width: 700px; margin: 0 auto;
+    }
+    .different-list {
+      list-style: none; padding: 0;
+    }
+    .different-list li {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px 0; border-bottom: 1px solid var(--border);
+      font-size: 15px; line-height: 1.7;
+    }
+    .different-list li:last-child { border-bottom: none; }
+    .diff-icon {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; margin-top: 2px;
+      background: rgba(99,102,241,0.12);
+    }
+    .diff-old {
+      font-size: 13px; color: var(--text-dim);
+      text-decoration: line-through; display: block; margin-bottom: 2px;
+    }
+    .diff-new { color: var(--text); font-weight: 600; }
+
+    /* ---- SOCIAL PROOF ---- */
+    .proof {
+      padding: 80px 24px;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .proof-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+    .proof-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+    }
+    .proof-card blockquote {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+      margin-bottom: 10px; font-style: italic;
+    }
+    .proof-card cite {
+      font-size: 11px; color: var(--accent); font-style: normal; font-weight: 700;
+    }
+
+    /* ---- BETA TIMELINE ---- */
+    .timeline {
+      padding: 48px 24px;
+      max-width: 700px; margin: 0 auto;
+      text-align: center;
+    }
+    .timeline-strip {
+      display: flex; justify-content: center; gap: 0;
+      margin-top: 24px;
+    }
+    .timeline-step {
+      flex: 1; max-width: 200px; padding: 16px 14px;
+      position: relative;
+    }
+    .timeline-step::before {
+      content: ''; position: absolute; top: 24px;
+      right: -1px; width: 100%; height: 2px;
+      background: var(--border);
+    }
+    .timeline-step:last-child::before { display: none; }
+    .timeline-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      margin: 0 auto 10px; position: relative; z-index: 1;
+    }
+    .timeline-step:nth-child(1) .timeline-dot { background: var(--green); }
+    .timeline-step:nth-child(2) .timeline-dot { background: var(--orange); }
+    .timeline-step:nth-child(3) .timeline-dot { background: var(--accent); }
+    .timeline-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 4px;
+    }
+    .timeline-desc {
+      font-size: 13px; color: var(--text-dim); line-height: 1.5;
+    }
+
+    /* ---- CTA ---- */
+    .cta {
+      padding: 100px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .cta::before {
+      content: '';
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta h2 {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .cta > p { font-size: 16px; color: var(--text-secondary); margin-bottom: 28px; }
+    .waitlist-form {
+      display: flex; gap: 8px; max-width: 420px;
+      margin: 0 auto; position: relative;
+    }
+    .waitlist-form input[type="email"] {
+      flex: 1; padding: 14px 16px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-card);
+      color: var(--text); font-size: 15px; font-family: var(--font);
+      outline: none; transition: border-color 0.2s;
+    }
+    .waitlist-form input[type="email"]:focus { border-color: var(--accent); }
+    .waitlist-form input[type="email"]::placeholder { color: var(--text-dim); }
+    .waitlist-form button {
+      padding: 14px 22px; border-radius: 10px; border: none;
+      background: var(--accent); color: white; font-weight: 800;
+      font-size: 15px; cursor: pointer; font-family: var(--font);
+      white-space: nowrap; transition: opacity 0.2s;
+    }
+    .waitlist-form button:hover { opacity: 0.9; }
+    .waitlist-note { font-size: 12px; color: var(--text-dim); margin-top: 10px; }
+
+    /* ---- FOOTER ---- */
+    footer {
+      padding: 32px 24px; border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    footer p { font-size: 13px; color: var(--text-dim); }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer .footer-name { font-weight: 700; color: var(--text-secondary); }
+    footer .footer-meaning {
+      font-size: 11px; color: var(--text-dim); margin-top: 4px;
+      font-family: var(--mono); letter-spacing: 1px;
+    }
+
+    /* ---- A11Y ---- */
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    [id] { scroll-margin-top: 80px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+      .report.visible { transform: none; }
+      .cursor-blink { animation: none; opacity: 1; }
+      .routing-dot { animation: none; opacity: 1; }
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .task-cards { grid-template-columns: 1fr; }
+      .terminal-grid { grid-template-columns: 1fr; }
+      .proof-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-toggle { display: block; }
+      .nav-links.open {
+        display: flex; flex-direction: column; position: absolute;
+        top: 60px; left: 0; right: 0; background: rgba(10,10,11,0.95);
+        backdrop-filter: blur(16px); padding: 16px 24px; gap: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .waitlist-form { flex-direction: column; }
+      .hero { padding-top: 120px; }
+      .timeline-strip { flex-direction: column; align-items: center; }
+      .timeline-step::before { display: none; }
+    }
+    @media (max-width: 520px) {
+      .features-grid { grid-template-columns: 1fr; }
+      h1 { letter-spacing: -1px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo" aria-label="Roodut home">
+      <div class="logo-icon"><span></span><span></span><span></span><span></span></div>
+      R<span class="logo-oo">oo</span>dut
+    </a>
+    <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="#demo" onclick="this.parentElement.classList.remove('open')">Demo</a>
+      <a href="#features" onclick="this.parentElement.classList.remove('open')">Features</a>
+      <a href="#cta" class="nav-cta" onclick="this.parentElement.classList.remove('open')">Get early access</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Beta &mdash; Waitlist open
+  </div>
+  <h1>Same prompt. Four AI models.<br><span class="gradient">Different answers.</span></h1>
+  <p class="hero-defn">A desktop app that runs Claude, Codex, Cursor &amp; Gemini side-by-side and highlights where they disagree.</p>
+  <p class="hero-sub">
+    Stop copy-pasting between AI tabs. Run one prompt across all four,
+    see the conflicts, and ship with confidence.
+  </p>
+  <div class="hero-buttons">
+    <a href="#cta" class="btn btn-primary">Get early access</a>
+    <a href="#demo" class="btn btn-secondary">See it in action &#8595;</a>
+  </div>
+  <p class="hero-tagline">Trust AI less. Compare it more.</p>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="demo-section" id="demo">
+  <div class="section-label">Live demo</div>
+  <h2 class="section-title">Watch AI models disagree in real time</h2>
+  <p class="section-sub">Pick a scenario. See four AI platforms analyze the same problem &mdash; then read the verification report.</p>
+
+  <div class="task-cards" role="group" aria-label="Demo scenarios">
+    <div class="task-card" data-scenario="0" tabindex="0" role="button" onclick="startScenario(0)">
+      <div class="task-card-num">Scenario 1</div>
+      <h3>&ldquo;Review this auth middleware&rdquo;</h3>
+      <p>Security review</p>
+    </div>
+    <div class="task-card" data-scenario="1" tabindex="0" role="button" onclick="startScenario(1)">
+      <div class="task-card-num">Scenario 2</div>
+      <h3>&ldquo;Why is this function slow?&rdquo;</h3>
+      <p>Performance analysis</p>
+    </div>
+    <div class="task-card" data-scenario="2" tabindex="0" role="button" onclick="startScenario(2)">
+      <div class="task-card-num">Scenario 3</div>
+      <h3>&ldquo;Is this API design correct?&rdquo;</h3>
+      <p>Architecture review</p>
+    </div>
+  </div>
+
+  <div class="demo-area" id="demo-area">
+    <div class="prompt-box">
+      <div class="prompt-label">Prompt</div>
+      <div id="prompt-text"></div>
+    </div>
+
+    <div class="routing-bar">
+      <span class="enigma-badge">ENIGMA</span>
+      <span class="routing-dot"></span>
+      <span id="routing-status">Routing engine sends the same prompt to all 4 platforms, then compares answers</span>
+      <button type="button" class="skip-btn hidden" id="skip-btn" onclick="skipToReport()">Show results &#8594;</button>
+    </div>
+
+    <div class="terminal-grid">
+      <div class="panel panel-claude">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <div class="panel-name">Claude</div>
+          <div class="panel-status" id="status-claude">waiting...</div>
+        </div>
+        <div class="panel-body" id="body-claude"></div>
+      </div>
+      <div class="panel panel-codex">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <div class="panel-name">Codex</div>
+          <div class="panel-status" id="status-codex">waiting...</div>
+        </div>
+        <div class="panel-body" id="body-codex"></div>
+      </div>
+      <div class="panel panel-cursor">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <div class="panel-name">Cursor</div>
+          <div class="panel-status" id="status-cursor">waiting...</div>
+        </div>
+        <div class="panel-body" id="body-cursor"></div>
+      </div>
+      <div class="panel panel-gemini">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <div class="panel-name">Gemini</div>
+          <div class="panel-status" id="status-gemini">waiting...</div>
+        </div>
+        <div class="panel-body" id="body-gemini"></div>
+      </div>
+    </div>
+
+    <div class="report" id="report"></div>
+
+    <div class="demo-cta" id="demo-cta" style="display:none">
+      <p><strong>One model would have missed half of that.</strong> Roodut catches what single-model workflows can't.</p>
+      <a href="#cta" class="btn btn-primary">Get early access</a>
+    </div>
+
+    <div id="report-announce" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Core capabilities</div>
+  <h2 class="section-title">Trust through verification, not faith</h2>
+  <p class="section-sub">Every AI model has blind spots. Roodut catches them by making models check each other.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon fi-1">&#9878;</div>
+      <h3>Disagreement Detection</h3>
+      <p>Highlights where models disagree &mdash; conflicts in red, consensus in green, unique findings in cyan.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-2">&#128737;</div>
+      <h3>Hallucination Catching</h3>
+      <p>Compares what an agent claims it did against the actual git diff. Catches phantom changes before they ship.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-3">&#9881;</div>
+      <h3>ENIGMA Routing</h3>
+      <p>Empirical capability matrix learns which model is best at what, then auto-routes tasks accordingly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-4">&#128274;</div>
+      <h3>Local-First &amp; Private</h3>
+      <p>Runs entirely on your machine. Your code and prompts never leave your environment. No SaaS. No lock-in.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW WE'RE DIFFERENT -->
+<section class="different">
+  <div class="section-label">Why Roodut</div>
+  <h2 class="section-title">What changes</h2>
+  <ul class="different-list">
+    <li>
+      <div class="diff-icon">1</div>
+      <div>
+        <span class="diff-old">Copy-paste the same prompt into 4 tabs, compare by eye</span>
+        <span class="diff-new">One prompt, all models, automatic comparison report</span>
+      </div>
+    </li>
+    <li>
+      <div class="diff-icon">2</div>
+      <div>
+        <span class="diff-old">Trust one model's answer and hope it's right</span>
+        <span class="diff-new">See where models disagree &mdash; fix the conflicts before they ship</span>
+      </div>
+    </li>
+    <li>
+      <div class="diff-icon">3</div>
+      <div>
+        <span class="diff-old">Guess which model is best for a task</span>
+        <span class="diff-new">ENIGMA routes to the right model based on empirical scoring</span>
+      </div>
+    </li>
+    <li>
+      <div class="diff-icon">4</div>
+      <div>
+        <span class="diff-old">Send your code to cloud SaaS orchestrators</span>
+        <span class="diff-new">Everything runs locally. Your IP never leaves your machine.</span>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="proof">
+  <div class="section-label">The research agrees</div>
+  <h2 class="section-title" style="margin-bottom: 40px">Multi-model verification works</h2>
+  <div class="proof-grid">
+    <div class="proof-card">
+      <blockquote>&ldquo;Multiple LLM instances debating across rounds significantly improves factuality. Three medium-capacity models outperformed GPT-4 at 91% accuracy.&rdquo;</blockquote>
+      <cite>MIT / ICML 2024 &mdash; Multi-Agent Debate</cite>
+    </div>
+    <div class="proof-card">
+      <blockquote>&ldquo;Reflection is one of the most underused but powerful agentic design patterns. Create two agents &mdash; one to generate, one to critique.&rdquo;</blockquote>
+      <cite>Andrew Ng &mdash; Agentic AI Design Patterns</cite>
+    </div>
+    <div class="proof-card">
+      <blockquote>&ldquo;The orchestration layer is the bottleneck. Better orchestration could increase the autonomous AI agent market by 15&ndash;30%.&rdquo;</blockquote>
+      <cite>Deloitte &mdash; TMT Predictions 2026</cite>
+    </div>
+  </div>
+</section>
+
+<!-- BETA TIMELINE -->
+<section class="timeline">
+  <div class="section-label">Beta timeline</div>
+  <div class="timeline-strip">
+    <div class="timeline-step">
+      <div class="timeline-dot"></div>
+      <div class="timeline-label">Now</div>
+      <div class="timeline-desc">Waitlist open. Core orchestration works.</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot"></div>
+      <div class="timeline-label">Next</div>
+      <div class="timeline-desc">Private beta invites. ENIGMA scoring live.</div>
+    </div>
+    <div class="timeline-step">
+      <div class="timeline-dot"></div>
+      <div class="timeline-label">Later</div>
+      <div class="timeline-desc">Public launch. Plugin ecosystem.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <h2>Stop trusting. Start verifying.</h2>
+  <p>Join the waitlist. One email when we ship.</p>
+  <form class="waitlist-form" id="waitlist-form" action="https://api.web3forms.com/submit" method="POST">
+    <input type="hidden" name="access_key" value="78916a84-8993-422f-842e-8e318e9307a7">
+    <input type="hidden" name="subject" value="New Roodut waitlist signup">
+    <input type="hidden" name="from_name" value="Roodut Waitlist">
+    <input type="text" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+    <input type="email" name="email" id="email-input" placeholder="you@company.com" required autocomplete="email" aria-label="Email address">
+    <button type="submit">Get early access</button>
+  </form>
+  <div id="form-status" aria-live="polite" class="waitlist-note"></div>
+  <p class="waitlist-note">No spam. No credit card. Just early access.</p>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    <span class="footer-name">R<span style="color: var(--cyan)">oo</span>dut</span> &nbsp;&middot;&nbsp;
+    <a href="https://github.com/roodut" target="_blank" rel="noopener">GitHub</a> &nbsp;&middot;&nbsp;
+    <a href="https://twitter.com/getroodut" target="_blank" rel="noopener">Twitter</a>
+  </p>
+  <p class="footer-meaning">from Finnish &ldquo;ruudut&rdquo; &mdash; panes, panels, squares</p>
+  <p style="margin-top: 6px">&copy; 2026 Roodut &nbsp;&middot;&nbsp; Apache-2.0</p>
+</footer>
+
+<script>
+(function() {
+  var scenarios = [
+    {
+      prompt: 'Review this Express auth middleware for security issues',
+      responses: {
+        claude: '3 issues found:\n1. No token expiry check \u2014 JWTs accepted\n   indefinitely after signing\n2. Missing rate limiting on /auth endpoints\n3. SQL injection in user lookup \u2014 raw string\n   interpolation in db.query()\n\nRecommend: add exp validation, express-rate-limit,\nand parameterized queries.',
+        codex: '2 issues found:\n1. Missing rate limiting \u2014 no protection\n   against brute-force attacks\n2. No HTTPS enforcement \u2014 tokens sent in\n   cleartext on HTTP\n\nToken handling looks correct \u2014 jwt.verify()\nwith proper secret management.\nAuth flow is sound overall.',
+        cursor: '4 issues found:\n1. SQL injection in user lookup \u2014\n   db.query("SELECT * FROM users WHERE id=" + userId)\n2. No token expiry validation \u2014 decoded\n   token never checked for exp\n3. Timing attack on string comparison \u2014\n   use crypto.timingSafeEqual()\n4. Missing CORS headers \u2014 any origin can\n   call auth endpoints\n\nCritical: the SQL injection is exploitable today.',
+        gemini: '3 issues found:\n1. SQL injection risk \u2014 string concatenation\n   in query builder\n2. No rate limiting \u2014 endpoint is wide open\n   to credential stuffing\n3. Token stored in localStorage \u2014 vulnerable\n   to XSS extraction\n\nConsider httpOnly cookies instead of\nlocalStorage for token storage.'
+      },
+      delays: { claude: 1500, codex: 2800, cursor: 4200, gemini: 5500 },
+      report: {
+        title: '4 platforms \u2014 6 unique issues found',
+        confidence: '3/4 models agree on core findings. 2 unique insights from Cursor and Gemini.',
+        sections: [
+          { type: 'consensus', label: 'Consensus', dotClass: 'dot-green', items: [
+            'All 4 platforms flagged rate limiting as missing',
+            '3/4 platforms flagged SQL injection in user lookup'
+          ]},
+          { type: 'conflict', label: 'Conflicts', dotClass: 'dot-amber', items: [
+            'Token handling \u2014 Claude and Cursor say token expiry is missing, Codex says handling is correct'
+          ]},
+          { type: 'unique', label: 'Unique Findings', dotClass: 'dot-cyan', items: [
+            'Only Cursor caught timing attack vulnerability on string comparison',
+            'Only Gemini flagged localStorage XSS risk for token storage'
+          ]}
+        ],
+        summary: 'A single model would have missed 2\u20133 issues. Cross-verification caught 6 unique issues total.'
+      }
+    },
+    {
+      prompt: 'Explain why this data processing function is slow',
+      responses: {
+        claude: 'Root cause: O(n\u00B2) nested loop in the\nfilter step.\n\nThe inner loop scans the full array for each\nelement. Replace the lookup with a Set for\nO(1) membership checks.\n\nFix: const seen = new Set(ids);\n     results.filter(r => seen.has(r.id))\n\nExpected improvement: ~200x faster at 10k items.',
+        codex: 'Root cause: excessive memory allocation.\n\nEach iteration creates a new array via\n.map().filter().concat(). GC pressure spikes\non large inputs.\n\nFix: mutate in place with a single pass.\nUse a pre-allocated buffer.\n\nExpected improvement: 3\u20135x faster,\nsignificantly lower memory footprint.',
+        cursor: 'Root cause: unnecessary sort before filter.\n\nThe sort() call runs O(n log n) on the full\ndataset, then filter() discards 80% of it.\nReverse the order \u2014 filter first, sort second.\n\nFix: data.filter(predicate).sort(compareFn)\n\nExpected improvement: 4x faster on typical\ndatasets where most items are filtered out.',
+        gemini: 'Root cause: N+1 query problem.\n\nThere is a database call inside the loop \u2014\neach iteration hits the DB for related records.\nThis dominates total time at scale.\n\nFix: batch-fetch all related records before\nthe loop with a single WHERE IN query.\n\nExpected improvement: 50\u2013100x faster\nwith batch loading.'
+      },
+      delays: { claude: 1400, codex: 2500, cursor: 3800, gemini: 5800 },
+      report: {
+        title: '4 different root causes identified',
+        confidence: '0/4 models agree on root cause. Each found a real but different bottleneck.',
+        sections: [
+          { type: 'conflict-red', label: 'Root Cause Disagreement', dotClass: 'dot-red', items: [
+            'Claude says algorithmic complexity (O(n\u00B2) loop)',
+            'Codex says memory pressure (excessive allocation)',
+            'Cursor says unnecessary computation (sort before filter)',
+            'Gemini says I/O bottleneck (N+1 database queries)'
+          ]},
+          { type: 'consensus', label: 'Consensus', dotClass: 'dot-green', items: [
+            'All agree the function has unnecessary work that can be eliminated'
+          ]},
+          { type: 'unique', label: 'Unique Findings', dotClass: 'dot-cyan', items: [
+            'Only Cursor identified the sort/filter ordering optimization',
+            'Only Gemini identified the N+1 query problem hiding inside the loop'
+          ]}
+        ],
+        summary: '4 different root causes. A single model would have fixed one symptom while missing three others.'
+      }
+    },
+    {
+      prompt: 'Is this REST API design for a task management system correct?',
+      responses: {
+        claude: 'Design is solid overall. Two suggestions:\n\n1. Add pagination to GET /tasks \u2014 unbounded\n   list endpoints are a scaling risk\n2. Version the API path: /v1/tasks instead\n   of /tasks\n\nEndpoint structure and HTTP methods are\nwell-chosen. Resource naming follows\nconventions.',
+        codex: 'Two REST standard violations:\n\n1. PUT /tasks/:id should be PATCH for partial\n   updates \u2014 PUT implies full replacement\n2. DELETE /tasks/:id returns 200 with body \u2014\n   should return 204 No Content\n\nAlso: POST /tasks should return 201 Created\nwith Location header, not 200.',
+        cursor: 'Critical security gaps:\n\n1. No authentication middleware on any route \u2014\n   all endpoints are publicly accessible\n2. No input validation on POST /tasks body \u2014\n   accepts arbitrary fields\n3. No authorization checks \u2014 any user can\n   modify any task\n\nFix these before reviewing API design patterns.',
+        gemini: 'Consistency issues:\n\n1. Naming is inconsistent \u2014 /tasks vs\n   /task-lists vs /taskItems. Pick one.\n2. Missing rate limiting on all endpoints\n3. No error response schema \u2014 errors return\n   plain strings instead of structured JSON\n\nAlso: consider adding ETag headers for\ncaching on GET endpoints.'
+      },
+      delays: { claude: 1800, codex: 2600, cursor: 4500, gemini: 6200 },
+      report: {
+        title: 'Each platform focused on a different layer',
+        confidence: '3/4 models flagged security gaps. 4 unique architectural insights across platforms.',
+        sections: [
+          { type: 'conflict', label: 'Conflicts', dotClass: 'dot-amber', items: [
+            'PUT vs PATCH \u2014 Codex recommends PATCH for partial updates, others used PUT without comment'
+          ]},
+          { type: 'consensus', label: 'Consensus', dotClass: 'dot-green', items: [
+            'Multiple platforms flagged missing security measures (auth, rate limiting)'
+          ]},
+          { type: 'unique', label: 'Unique Findings', dotClass: 'dot-cyan', items: [
+            'Only Claude suggested API versioning (/v1/ prefix)',
+            'Only Cursor flagged missing authentication middleware on all routes',
+            'Only Gemini caught inconsistent endpoint naming convention',
+            'Only Codex flagged incorrect HTTP status codes (200 vs 201/204)'
+          ]}
+        ],
+        summary: 'Each platform focused on a different layer: Claude on architecture, Codex on REST standards, Cursor on security, Gemini on consistency.'
+      }
+    }
+  ];
+
+  var typewriterTimers = [];
+  var running = false;
+  var currentScenario = null;
+
+  function clearTimers() {
+    for (var i = 0; i < typewriterTimers.length; i++) clearTimeout(typewriterTimers[i]);
+    typewriterTimers = [];
+    running = false;
+  }
+
+  function resetDemo() {
+    clearTimers();
+    var platforms = ['claude', 'codex', 'cursor', 'gemini'];
+    for (var i = 0; i < platforms.length; i++) {
+      document.getElementById('body-' + platforms[i]).innerHTML = '';
+      var st = document.getElementById('status-' + platforms[i]);
+      st.textContent = 'waiting...'; st.style.color = '';
+    }
+    var report = document.getElementById('report');
+    report.classList.remove('visible'); report.innerHTML = '';
+    document.getElementById('routing-status').innerHTML = 'Routing engine sends the same prompt to all 4 platforms, then compares answers';
+    document.getElementById('skip-btn').classList.add('hidden');
+    document.getElementById('demo-cta').style.display = 'none';
+    document.getElementById('report-announce').textContent = '';
+  }
+
+  function typeText(element, text, speed, callback) {
+    var i = 0;
+    var span = document.createElement('span');
+    span.className = 'typed-text';
+    element.appendChild(span);
+    var cursorEl = document.createElement('span');
+    cursorEl.className = 'cursor-blink';
+    element.appendChild(cursorEl);
+
+    function step() {
+      if (i < text.length) {
+        if (text[i] === '\n') {
+          element.insertBefore(document.createElement('br'), cursorEl);
+          span = document.createElement('span');
+          span.className = 'typed-text';
+          element.insertBefore(span, cursorEl);
+        } else {
+          span.textContent += text[i];
+        }
+        i++;
+        var delay = Math.min(speed + Math.random() * 10, 28);
+        if (text.length > 250) delay = Math.min(speed * 0.5 + Math.random() * 8, 22);
+        typewriterTimers.push(setTimeout(step, delay));
+      } else {
+        if (cursorEl.parentNode) cursorEl.parentNode.removeChild(cursorEl);
+        if (callback) callback();
+      }
+    }
+    step();
+  }
+
+  function renderReport(reportData) {
+    var report = document.getElementById('report');
+    var html = '<div class="report-header"><span class="report-badge">Verification Report</span><span class="report-title">' + reportData.title + '</span></div><div class="report-body">';
+    for (var s = 0; s < reportData.sections.length; s++) {
+      var sec = reportData.sections[s];
+      html += '<div class="report-section"><div class="report-section-title"><span class="dot ' + sec.dotClass + '"></span>' + sec.label + '</div>';
+      for (var it = 0; it < sec.items.length; it++) {
+        html += '<div class="report-item ' + sec.type + '">' + sec.items[it] + '</div>';
+      }
+      html += '</div>';
+    }
+    html += '<div class="report-summary"><div class="report-summary-label">Bottom line</div><p>' + reportData.summary + '</p></div>';
+    html += '<div class="report-confidence"><strong>Confidence:</strong> ' + reportData.confidence + '</div>';
+    html += '</div>';
+    report.innerHTML = html;
+    document.getElementById('routing-status').innerHTML = 'Verification complete &mdash; disagreements surfaced';
+    document.getElementById('skip-btn').classList.add('hidden');
+    typewriterTimers.push(setTimeout(function() {
+      report.classList.add('visible');
+      document.getElementById('demo-cta').style.display = 'block';
+      document.getElementById('report-announce').textContent = 'Verification report ready. ' + reportData.title;
+      setTimeout(function() { report.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+    }, 300));
+  }
+
+  window.skipToReport = function() {
+    if (currentScenario === null) return;
+    clearTimers();
+    running = true;
+    var platforms = ['claude', 'codex', 'cursor', 'gemini'];
+    var sc = scenarios[currentScenario];
+    for (var i = 0; i < platforms.length; i++) {
+      var bodyEl = document.getElementById('body-' + platforms[i]);
+      var statusEl = document.getElementById('status-' + platforms[i]);
+      bodyEl.innerHTML = '<span class="typed-text">' + sc.responses[platforms[i]].replace(/\n/g, '<br>') + '</span>';
+      statusEl.textContent = 'done'; statusEl.style.color = 'var(--green)';
+    }
+    renderReport(sc.report);
+  };
+
+  window.startScenario = function(idx) {
+    if (running) resetDemo();
+    running = true;
+    currentScenario = idx;
+
+    var cards = document.querySelectorAll('.task-card');
+    for (var c = 0; c < cards.length; c++) cards[c].classList.remove('active');
+    document.querySelector('[data-scenario="' + idx + '"]').classList.add('active');
+
+    var area = document.getElementById('demo-area');
+    area.classList.add('visible');
+    resetDemo();
+    running = true;
+    currentScenario = idx;
+
+    var sc = scenarios[idx];
+    document.getElementById('prompt-text').textContent = sc.prompt;
+    document.getElementById('skip-btn').classList.remove('hidden');
+    setTimeout(function() { area.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+
+    var platforms = ['claude', 'codex', 'cursor', 'gemini'];
+    typewriterTimers.push(setTimeout(function() {
+      for (var i = 0; i < platforms.length; i++) {
+        var st = document.getElementById('status-' + platforms[i]);
+        st.textContent = 'receiving...'; st.style.color = 'var(--orange)';
+      }
+    }, 400));
+
+    var completed = 0;
+    for (var p = 0; p < platforms.length; p++) {
+      (function(platform) {
+        typewriterTimers.push(setTimeout(function() {
+          if (!running) return;
+          var statusEl = document.getElementById('status-' + platform);
+          var bodyEl = document.getElementById('body-' + platform);
+          statusEl.textContent = 'typing...'; statusEl.style.color = 'var(--green)';
+          typeText(bodyEl, sc.responses[platform], 20, function() {
+            statusEl.textContent = 'done';
+            completed++;
+            if (completed === 4) renderReport(sc.report);
+          });
+        }, sc.delays[platform]));
+      })(platforms[p]);
+    }
+  };
+
+  // Keyboard support for task cards
+  document.addEventListener('keydown', function(e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('task-card')) {
+      e.preventDefault();
+      var idx = parseInt(e.target.getAttribute('data-scenario'), 10);
+      startScenario(idx);
+    }
+  });
+})();
+
+// Waitlist form
+document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var form = this, input = document.getElementById('email-input');
+  var btn = form.querySelector('button[type="submit"]'), status = document.getElementById('form-status');
+  var email = input.value.trim();
+  if (form.querySelector('[name="botcheck"]').value) return;
+  if (!email || !email.includes('@')) { input.style.borderColor = '#ef4444'; status.textContent = 'Please enter a valid email.'; return; }
+  btn.textContent = 'Sending...'; btn.disabled = true; status.textContent = '';
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ access_key: form.querySelector('[name="access_key"]').value, subject: 'New Roodut waitlist signup', from_name: 'Roodut Waitlist', email: email })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.success) {
+      btn.textContent = "You're on the list!"; btn.style.background = '#22c55e';
+      input.value = ''; input.style.borderColor = '#22c55e';
+      status.textContent = "You're on the waitlist! We'll be in touch.";
+    } else {
+      btn.textContent = 'Try again'; btn.style.background = '#ef4444'; btn.disabled = false;
+      status.textContent = 'Something went wrong. Please try again.';
+    }
+  }).catch(function() {
+    btn.textContent = 'Try again'; btn.style.background = '#ef4444'; btn.disabled = false;
+    status.textContent = 'Network error. Please try again.';
+  });
+});
+</script>
+
+</body>
+</html>
